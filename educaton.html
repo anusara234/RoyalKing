@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mega Dashboard</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+display:flex;
+background:#f4f4f4;
+transition:.3s;
+}
+
+.dark{
+background:#121212;
+color:white;
+}
+
+.sidebar{
+width:250px;
+height:100vh;
+background:#1e293b;
+color:white;
+padding:20px;
+position:fixed;
+}
+
+.sidebar h2{
+margin-bottom:20px;
+}
+
+.sidebar button{
+width:100%;
+padding:12px;
+margin:5px 0;
+border:none;
+cursor:pointer;
+background:#334155;
+color:white;
+}
+
+.main{
+margin-left:250px;
+padding:20px;
+width:100%;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 0 10px rgba(0,0,0,.1);
+}
+
+.dark .card{
+background:#1f1f1f;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin:5px 0;
+}
+
+.todo-item{
+display:flex;
+justify-content:space-between;
+margin:5px 0;
+padding:10px;
+background:#ddd;
+}
+
+.dark .todo-item{
+background:#333;
+}
+
+#clock{
+font-size:30px;
+font-weight:bold;
+}
+
+.calc button{
+width:23%;
+padding:15px;
+margin:2px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+<h2>Mega Dashboard</h2>
+
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('notes')">Notes</button>
+<button onclick="showPage('todo')">Todo</button>
+<button onclick="showPage('calculator')">Calculator</button>
+<button onclick="toggleDark()">Dark Mode</button>
+</div>
+
+<div class="main">
+
+<div id="dashboard" class="page">
+<div class="card">
+<h2>Dashboard</h2>
+<br>
+<div id="clock"></div>
+</div>
+</div>
+
+<div id="notes" class="page" style="display:none">
+<div class="card">
+<h2>Notes</h2>
+<br>
+<textarea id="notesArea" rows="10"></textarea>
+<br>
+<button onclick="saveNotes()">Save Notes</button>
+</div>
+</div>
+
+<div id="todo" class="page" style="display:none">
+<div class="card">
+<h2>Todo List</h2>
+<br>
+<input id="todoInput" placeholder="Add task">
+<button onclick="addTodo()">Add</button>
+
+<div id="todoList"></div>
+</div>
+</div>
+
+<div id="calculator" class="page" style="display:none">
+<div class="card">
+<h2>Calculator</h2>
+<br>
+
+<input id="calcDisplay">
+
+<div class="calc">
+<button onclick="addCalc('7')">7</button>
+<button onclick="addCalc('8')">8</button>
+<button onclick="addCalc('9')">9</button>
+<button onclick="addCalc('/')">/</button>
+
+<button onclick="addCalc('4')">4</button>
+<button onclick="addCalc('5')">5</button>
+<button onclick="addCalc('6')">6</button>
+<button onclick="addCalc('*')">*</button>
+
+<button onclick="addCalc('1')">1</button>
+<button onclick="addCalc('2')">2</button>
+<button onclick="addCalc('3')">3</button>
+<button onclick="addCalc('-')">-</button>
+
+<button onclick="addCalc('0')">0</button>
+<button onclick="calculate()">=</button>
+<button onclick="clearCalc()">C</button>
+<button onclick="addCalc('+')">+</button>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+function showPage(id){
+document.querySelectorAll('.page').forEach(p=>{
+p.style.display='none';
+});
+document.getElementById(id).style.display='block';
+}
+
+function toggleDark(){
+document.body.classList.toggle('dark');
+}
+
+function updateClock(){
+let now=new Date();
+document.getElementById('clock').innerHTML=
+now.toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+
+document.getElementById('notesArea').value=
+localStorage.getItem('notes') || '';
+
+function saveNotes(){
+localStorage.setItem(
+'notes',
+document.getElementById('notesArea').value
+);
+alert('Saved');
+}
+
+let todos=JSON.parse(
+localStorage.getItem('todos')
+)||[];
+
+function renderTodos(){
+let list=document.getElementById('todoList');
+list.innerHTML='';
+
+todos.forEach((item,index)=>{
+list.innerHTML+=`
+<div class="todo-item">
+${item}
+<button onclick="deleteTodo(${index})">
+Delete
+</button>
+</div>
+`;
+});
+
+localStorage.setItem(
+'todos',
+JSON.stringify(todos)
+);
+}
+
+function addTodo(){
+let input=document.getElementById('todoInput');
+
+if(input.value!=''){
+todos.push(input.value);
+input.value='';
+renderTodos();
+}
+}
+
+function deleteTodo(i){
+todos.splice(i,1);
+renderTodos();
+}
+
+renderTodos();
+
+function addCalc(v){
+document.getElementById('calcDisplay').value+=v;
+}
+
+function clearCalc(){
+document.getElementById('calcDisplay').value='';
+}
+
+function calculate(){
+try{
+document.getElementById('calcDisplay').value=
+eval(
+document.getElementById('calcDisplay').value
+);
+}
+catch{
+alert('Error');
+}
+}
+
+</script>
+
+</body>
+</html>
